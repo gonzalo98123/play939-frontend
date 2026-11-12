@@ -1,16 +1,31 @@
-// src/lib/strapi.ts
-const STRAPI_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:1337';
 
-export async function fetchAPI(path: string, options: RequestInit = {}) {
+const STRAPI_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:1337"
+    : "");
+
+export async function fetchAPI(
+  path: string,
+  options: RequestInit = {}
+) {
+  if (!STRAPI_URL) {
+    throw new Error(
+      "Falta configurar NEXT_PUBLIC_BACKEND_URL en las variables de entorno."
+    );
+  }
+
+  const baseUrl = STRAPI_URL.replace(/\/+$/, "");
+  const url = `${baseUrl}/api${path.startsWith("/") ? path : `/${path}`}`;
+
   const defaultOptions: RequestInit = {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    // Le indicamos a Next.js 15 que revalide los datos cada 60 segundos
     next: { revalidate: 60 },
   };
 
-  const mergedOptions = {
+  const mergedOptions: RequestInit = {
     ...defaultOptions,
     ...options,
     headers: {
@@ -19,20 +34,37 @@ export async function fetchAPI(path: string, options: RequestInit = {}) {
     },
   };
 
-  const response = await fetch(`${STRAPI_URL}/api${path}`, mergedOptions);
+  const response = await fetch(url, mergedOptions);
 
   if (!response.ok) {
-    throw new Error(`Error en Strapi API: ${response.statusText}`);
+    const detalle = await response.text();
+
+    console.error("Error en Strapi:", {
+      url,
+      status: response.status,
+      statusText: response.statusText,
+      detalle,
+    });
+
+    throw new Error(
+      `Error en Strapi API: HTTP ${response.status} ${response.statusText}`
+    );
   }
 
-  const data = await response.json();
-  return data;
+  return response.json();
 }
 
 export function getStrapiMedia(url: string | null) {
   if (!url) return null;
-  if (url.startsWith('http') || url.startsWith('//')) {
+
+  if (url.startsWith("http") || url.startsWith("//")) {
     return url;
   }
-  return `${STRAPI_URL}${url}`;
+
+  if (!STRAPI_URL) {
+    console.error("Falta configurar NEXT_PUBLIC_BACKEND_URL.");
+    return null;
+  }
+
+  return `${STRAPI_URL.replace(/\/+$/, "")}${url}`;
 }
