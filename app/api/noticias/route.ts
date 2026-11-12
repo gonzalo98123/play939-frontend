@@ -1,10 +1,5 @@
-
 import { NextResponse } from "next/server";
 import { obtenerNoticias } from "@/src/lib/noticiasMusicales";
-
-// Forzar que esta ruta sea dinámica para que Vercel no intente prerenderizarla en el build
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export async function GET() {
   try {
