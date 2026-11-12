@@ -121,7 +121,7 @@ function extraerCategoria(item: any): string {
 export async function obtenerNoticias(): Promise<Noticia[]> {
   try {
     const response = await fetch(RSS_URL, {
-      cache: "no-store",
+      cache: "no-store", // <- Soluciona el conflicto de compilación con caché dinámica
       headers: {
         "User-Agent": "Mozilla/5.0",
         Accept:

@@ -1,6 +1,9 @@
 
 import { connection } from "next/server";
 
+// Evita que Next.js intente pre-renderizar esta ruta durante el build
+export const dynamic = 'force-dynamic';
+
 interface Noticia {
   id?: string;
   titulo?: string;
