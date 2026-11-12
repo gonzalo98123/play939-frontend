@@ -48,8 +48,8 @@ export default async function Home() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-16">
 
-      {/* 1. GRILLA DE PROGRAMACIÓN (COMPONENTE) */}
-      <Stream />
+      {/* 1. GRILLA DE PROGRAMACIÓN (COMPONENTE) 
+      <Stream />*/}
 
       {/* 2. GRILLA DE PROGRAMACIÓN (COMPONENTE) */}
       <ProgramacionGrid programas={programas} />

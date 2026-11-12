@@ -50,8 +50,8 @@ export default function DownloadAppBanner({ appUrl = "https://play939.appradio.a
             className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-black/60 hover:bg-black/80 border border-white/15 text-white transition-all hover:scale-105 shadow-xl group"
           >
             <div className="text-left">
-              <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Abrir aplicación</p>
-              <p className="text-sm font-bold tracking-wide text-white group-hover:text-[#FF4B2B] transition-colors">play939.appradio.ar</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">App Oficial</p>
+              <p className="text-sm font-bold tracking-wide text-white group-hover:text-[#FF4B2B] transition-colors">ABRIR APLICACIÓN</p>
             </div>
             <ExternalLink className="w-5 h-5 text-[#FF4B2B] ml-1 group-hover:translate-x-0.5 transition-transform" />
           </a>

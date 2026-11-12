@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/src/components/NavBar";
+import Stream from "@/src/components/Stream";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
       >
         <NavBar />
         <main className="min-h-screen">{children}</main>
+        <Stream />
       </body>
     </html>
   );
