@@ -1,4 +1,3 @@
-
 import { XMLParser } from "fast-xml-parser";
 
 const RSS_URL = "https://billboard.ar/feed/";
@@ -46,52 +45,35 @@ function limpiarTexto(valor: any): string {
 
 // Obtener URL de imagen
 function extraerImagen(item: any): string | null {
-  // 1. Imagen adjunta mediante enclosure
   if (item.enclosure?.["@_url"]) {
     return item.enclosure["@_url"];
   }
 
-  // 2. Media content
   const mediaContent = item["media:content"];
-
   if (mediaContent) {
-    const media = Array.isArray(mediaContent)
-      ? mediaContent[0]
-      : mediaContent;
-
+    const media = Array.isArray(mediaContent) ? mediaContent[0] : mediaContent;
     if (media?.["@_url"]) {
       return media["@_url"];
     }
   }
 
-  // 3. Media thumbnail
   const mediaThumbnail = item["media:thumbnail"];
-
   if (mediaThumbnail) {
-    const thumbnail = Array.isArray(mediaThumbnail)
-      ? mediaThumbnail[0]
-      : mediaThumbnail;
-
+    const thumbnail = Array.isArray(mediaThumbnail) ? mediaThumbnail[0] : mediaThumbnail;
     if (thumbnail?.["@_url"]) {
       return thumbnail["@_url"];
     }
   }
 
-  // 4. Imagen dentro del contenido HTML
   const contenidoHTML =
     (typeof item["content:encoded"] === "string"
       ? item["content:encoded"]
       : item["content:encoded"]?.__cdata) ||
-    (typeof item.description === "string"
-      ? item.description
-      : item.description?.__cdata) ||
+    (typeof item.description === "string" ? item.description : item.description?.__cdata) ||
     "";
 
   if (contenidoHTML) {
-    const match = contenidoHTML.match(
-      /<img[^>]+(?:src|data-src)=["']([^"']+)["']/i
-    );
-
+    const match = contenidoHTML.match(/<img[^>]+(?:src|data-src)=["']([^"']+)["']/i);
     if (match?.[1]) {
       return match[1];
     }
@@ -106,10 +88,7 @@ function extraerCategoria(item: any): string {
     return "Música";
   }
 
-  const categorias = Array.isArray(item.category)
-    ? item.category
-    : [item.category];
-
+  const categorias = Array.isArray(item.category) ? item.category : [item.category];
   const categoria = categorias
     .map((cat: any) => limpiarTexto(cat))
     .find((cat: string) => cat.length > 0);
@@ -117,23 +96,25 @@ function extraerCategoria(item: any): string {
   return categoria || "Música";
 }
 
-// Obtener las últimas 6 noticias
+// Obtener las últimas 6 noticias con protección ante fallos de compilación
 export async function obtenerNoticias(): Promise<Noticia[]> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // Timeout de 8 segundos para evitar bloqueos
+
     const response = await fetch(RSS_URL, {
-      cache: "no-store", // <- Soluciona el conflicto de compilación con caché dinámica
+      cache: "no-store",
+      signal: controller.signal,
       headers: {
         "User-Agent": "Mozilla/5.0",
-        Accept:
-          "application/rss+xml, application/xml, text/xml, */*",
+        Accept: "application/rss+xml, application/xml, text/xml, */*",
       },
     });
 
-    if (!response.ok) {
-      console.error(
-        `Error HTTP al consultar Billboard Argentina: ${response.status}`
-      );
+    clearTimeout(timeoutId);
 
+    if (!response.ok) {
+      console.error(`Error HTTP al consultar Billboard Argentina: ${response.status}`);
       return [];
     }
 
@@ -148,20 +129,14 @@ export async function obtenerNoticias(): Promise<Noticia[]> {
     });
 
     const resultado = parser.parse(xml);
-
     const items = resultado?.rss?.channel?.item;
 
     if (!items) {
-      console.error(
-        "El RSS de Billboard Argentina no devolvió noticias."
-      );
-
+      console.error("El RSS de Billboard Argentina no devolvió noticias.");
       return [];
     }
 
-    const lista = Array.isArray(items)
-      ? items
-      : [items];
+    const lista = Array.isArray(items) ? items : [items];
 
     return lista.slice(0, 6).map((item: any): Noticia => {
       const enlace =
@@ -171,24 +146,15 @@ export async function obtenerNoticias(): Promise<Noticia[]> {
 
       return {
         titulo: limpiarTexto(item.title),
-
         descripcion: limpiarTexto(item.description),
-
         url: enlace,
-
         fecha: limpiarTexto(item.pubDate),
-
         categoria: extraerCategoria(item),
-
         imagen: extraerImagen(item),
       };
     });
   } catch (error) {
-    console.error(
-      "Error al obtener noticias de Billboard Argentina:",
-      error
-    );
-
-    return [];
+    console.error("Error al obtener noticias de Billboard Argentina:", error);
+    return []; // Retorna un array vacío de forma segura para que la app no colapse en build time
   }
 }
