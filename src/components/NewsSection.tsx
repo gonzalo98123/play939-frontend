@@ -14,6 +14,20 @@ interface Noticia {
   categoria?: string;
 }
 
+// Función para decodificar entidades HTML como &#038;, &#039;, &quot;, etc.
+function decodeEntities(text: string | undefined | null): string {
+  if (!text) return "";
+  
+  // Si estás en el cliente/servidor con entorno DOM, puedes usar un textarea oculto o un parser:
+  return text
+    .replace(/&#038;/g, "&")
+    .replace(/&amp;/g, "&")
+    .replace(/&#039;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
 async function getNoticias(): Promise<Noticia[]> {
   try {
     const baseUrl =
@@ -119,10 +133,14 @@ export default async function NewsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {noticias.map((noticia, index) => {
-            const titulo =
+            // Limpiamos y decodificamos el título o descripción de respaldo
+            const tituloCrudo =
               noticia.titulo?.trim() ||
               noticia.descripcion?.slice(0, 100) ||
               "Últimas noticias";
+            
+            const titulo = decodeEntities(tituloCrudo);
+            const descripcion = decodeEntities(noticia.descripcion);
 
             const enlace = noticia.url || noticia.link;
 
@@ -164,7 +182,7 @@ export default async function NewsSection() {
                   </h3>
 
                   <p className="text-sm text-gray-400 leading-relaxed line-clamp-3">
-                    {noticia.descripcion}
+                    {descripcion}
                   </p>
 
                   <div className="pt-3 mt-auto">
