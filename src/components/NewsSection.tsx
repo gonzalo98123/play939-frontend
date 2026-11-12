@@ -1,4 +1,3 @@
-
 import { connection } from "next/server";
 
 // Evita que Next.js intente pre-renderizar esta ruta durante el build
@@ -19,9 +18,9 @@ async function getNoticias(): Promise<Noticia[]> {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "http://localhost:3000";
+      "http://localhost:1337";
 
-    const res = await fetch(`${baseUrl}/api/noticias`, {
+    const res = await fetch(`${baseUrl}/api/billboard-news`, {
       cache: "no-store",
     });
 
