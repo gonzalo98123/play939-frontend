@@ -2,9 +2,6 @@
 import { NextResponse } from "next/server";
 import { obtenerNoticias } from "@/src/lib/noticiasMusicales";
 
-export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
-
 export async function GET() {
   try {
     const noticias = await obtenerNoticias();
