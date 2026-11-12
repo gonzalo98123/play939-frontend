@@ -32,11 +32,13 @@ export default function Navbar() {
             className="w-full h-full object-contain"
           />
         </div>
+        {/*
         <div className="flex flex-col">
           <span className="font-black tracking-wider text-white text-lg leading-none">
             PLAY <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E1005B] to-[#FF4B2B]">93.9</span>
           </span>
         </div>
+        */}
       </Link>
 
         {/* Menú de Navegación (Desktop) */}
