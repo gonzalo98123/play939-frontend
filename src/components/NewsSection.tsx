@@ -18,7 +18,7 @@ interface Noticia {
 async function getNoticias(): Promise<Noticia[]> {
   try {
     const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
       "http://localhost:3000";
 
     const res = await fetch(`${baseUrl}/api/noticias`, {
