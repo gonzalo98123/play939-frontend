@@ -1,5 +1,9 @@
+
 import { NextResponse } from "next/server";
 import { obtenerNoticias } from "@/src/lib/noticiasMusicales";
+
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET() {
   try {
@@ -11,7 +15,6 @@ export async function GET() {
       total: noticias.length,
       noticias,
     });
-
   } catch (error: unknown) {
     const mensaje =
       error instanceof Error
