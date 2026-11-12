@@ -35,19 +35,18 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
     }
   };
 
-  // Efecto para el movimiento continuo y ultra suave (autoscroll)
+  // Efecto para el movimiento continuo y suave (autoscroll)
   useEffect(() => {
     const container = scrollRef.current;
     if (!container || programas.length <= 2) return;
 
     let animationFrameId: number;
-    let speed = 0.5; // Velocidad del movimiento constante (puedes subirlo o bajarlo)
+    let speed = 0.5;
 
     const step = () => {
       if (!isPaused && container) {
         container.scrollLeft += speed;
 
-        // Si llega al final del scroll, vuelve al principio de forma fluida
         if (container.scrollLeft >= container.scrollWidth - container.clientWidth - 1) {
           container.scrollLeft = 0;
         }
@@ -92,12 +91,12 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
       {programas.length === 0 ? (
         <p className="text-gray-500 italic">No hay programas cargados todavía en Strapi.</p>
       ) : (
-        /* CARRUSEL CON MOVIMIENTO CONTINUO Y SUAVE */
+        /* CARRUSEL DE 2 TARJETAS MÁS GRANDES */
         <div 
           ref={scrollRef}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="flex gap-6 overflow-x-auto scrollbar-none pb-4 pt-2 select-none"
+          className="flex gap-6 overflow-x-auto scrollbar-none pb-4 pt-2 select-none items-stretch"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollBehavior: 'auto' }}
         >
           {programas.map((prog) => {
@@ -105,24 +104,24 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
             return (
               <div 
                 key={prog.id} 
-                className="min-w-[calc(100%-12px)] sm:min-w-[calc(50%-12px)] flex-shrink-0 bg-[#16161E] rounded-3xl border border-white/5 overflow-hidden hover:border-[#E1005B]/50 transition-all duration-300 group flex flex-col shadow-xl"
+                className="w-[85vw] sm:w-[calc(50%-12px)] min-w-[85vw] sm:min-w-[calc(50%-12px)] flex-shrink-0 bg-[#16161E] rounded-3xl border border-white/5 overflow-hidden hover:border-[#E1005B]/50 transition-all duration-300 group flex flex-col shadow-2xl"
               >
-                {/* CONTENEDOR DE IMAGEN */}
+                {/* CONTENEDOR DE IMAGEN ADAPTABLE */}
                 {imageUrl ? (
-                  <div className="h-64 sm:h-72 w-full overflow-hidden relative bg-black/40">
+                  <div className="w-full relative bg-black/40 flex items-center justify-center overflow-hidden">
                     <img 
                       src={imageUrl} 
                       alt={prog.titulo || "Programa de radio"} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none" 
+                      className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none" 
                     />
-                    <div className="absolute top-4 left-4">
+                    <div className="absolute top-4 left-4 z-10">
                       <span className="text-xs font-bold uppercase tracking-wider bg-[#E1005B] text-white px-3.5 py-1.5 rounded-full shadow-lg">
                         {prog.dia || "Programación"}
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="h-64 sm:h-72 w-full bg-gradient-to-br from-[#E1005B]/20 to-[#16161E] flex items-center justify-center p-4 text-center">
+                  <div className="h-64 w-full bg-gradient-to-br from-[#E1005B]/20 to-[#16161E] flex items-center justify-center p-4 text-center">
                     <span className="text-gray-400 font-medium">Sin imagen</span>
                   </div>
                 )}
