@@ -23,6 +23,9 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 
+  // Duplicamos los programas para crear el efecto de bucle infinito sin saltos bruscos
+  const extendedProgramas = [...programas, ...programas];
+
   // Función para mover manualmente con las flechas de forma suave
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -35,20 +38,24 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
     }
   };
 
-  // Efecto para el movimiento continuo y suave (autoscroll)
+  // Efecto para el movimiento continuo y bucle infinito suave
   useEffect(() => {
     const container = scrollRef.current;
-    if (!container || programas.length <= 2) return;
+    if (!container || programas.length <= 1) return;
 
     let animationFrameId: number;
-    let speed = 0.5;
+    let speed = 0.5; // Velocidad del movimiento constante
 
     const step = () => {
       if (!isPaused && container) {
         container.scrollLeft += speed;
 
-        if (container.scrollLeft >= container.scrollWidth - container.clientWidth - 1) {
-          container.scrollLeft = 0;
+        // La mitad exacta del ancho total del scroll corresponde al final del primer bloque original
+        const halfScrollWidth = container.scrollWidth / 2;
+
+        // Si pasamos la mitad, reiniciamos el scroll al principio de forma invisible
+        if (container.scrollLeft >= halfScrollWidth) {
+          container.scrollLeft = container.scrollLeft - halfScrollWidth;
         }
       }
       animationFrameId = requestAnimationFrame(step);
@@ -91,7 +98,7 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
       {programas.length === 0 ? (
         <p className="text-gray-500 italic">No hay programas cargados todavía en Strapi.</p>
       ) : (
-        /* CARRUSEL DE 2 TARJETAS MÁS GRANDES */
+        /* CARRUSEL INFINITO Y CONTINUO */
         <div 
           ref={scrollRef}
           onMouseEnter={() => setIsPaused(true)}
@@ -99,12 +106,12 @@ export default function ProgramacionGrid({ programas }: ProgramacionGridProps) {
           className="flex gap-6 overflow-x-auto scrollbar-none pb-4 pt-2 select-none items-stretch"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollBehavior: 'auto' }}
         >
-          {programas.map((prog) => {
+          {extendedProgramas.map((prog, index) => {
             const imageUrl = getStrapiMedia(prog.portada?.url ?? null);
             return (
               <div 
-                key={prog.id} 
-                className="w-[85vw] sm:w-[calc(50%-12px)] min-w-[85vw] sm:min-w-[calc(50%-12px)] flex-shrink-0 bg-[#16161E] rounded-3xl border border-white/5 overflow-hidden hover:border-[#E1005B]/50 transition-all duration-300 group flex flex-col shadow-2xl"
+                key={`${prog.id}-${index}`} 
+                className="w-[85vw] sm:w-[calc(43%-12px)] min-w-[85vw] sm:min-w-[calc(43%-12px)] max-w-[480px] flex-shrink-0 bg-[#16161E] rounded-3xl border border-white/5 overflow-hidden hover:border-[#E1005B]/50 transition-all duration-300 group flex flex-col shadow-2xl"
               >
                 {/* CONTENEDOR DE IMAGEN ADAPTABLE */}
                 {imageUrl ? (
