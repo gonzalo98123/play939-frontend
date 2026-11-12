@@ -1,3 +1,4 @@
+
 import { XMLParser } from "fast-xml-parser";
 
 const RSS_URL = "https://billboard.ar/feed/";
@@ -11,28 +12,28 @@ export interface Noticia {
   imagen: string | null;
 }
 
-// Limpieza de textos HTML y entidades
-function limpiarTexto(valor: any): string {
+function limpiarTexto(valor: unknown): string {
   let texto = "";
 
   if (typeof valor === "string") {
     texto = valor;
   } else if (valor && typeof valor === "object") {
-    texto = valor.__cdata || valor["#text"] || "";
+    const objeto = valor as Record<string, unknown>;
+    const contenido = objeto.__cdata ?? objeto["#text"];
+    if (typeof contenido === "string") {
+      texto = contenido;
+    }
   }
 
   return texto
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<[^>]*>?/gm, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#160;/g, " ")
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|&#160;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8216;/g, "'")
+    .replace(/&#039;|&apos;/g, "'")
+    .replace(/&#8217;|&#8216;/g, "'")
     .replace(/&#8220;/g, '"')
     .replace(/&#8221;/g, '"')
     .replace(/&#8211;/g, "–")
@@ -43,65 +44,70 @@ function limpiarTexto(valor: any): string {
     .trim();
 }
 
-// Obtener URL de imagen
-function extraerImagen(item: any): string | null {
-  if (item.enclosure?.["@_url"]) {
-    return item.enclosure["@_url"];
-  }
+type RSSItem = Record<string, any>;
+
+function extraerImagen(item: RSSItem): string | null {
+  const enclosure = item.enclosure?.["@_url"];
+  if (typeof enclosure === "string") return enclosure;
 
   const mediaContent = item["media:content"];
-  if (mediaContent) {
-    const media = Array.isArray(mediaContent) ? mediaContent[0] : mediaContent;
-    if (media?.["@_url"]) {
-      return media["@_url"];
-    }
+  const media = Array.isArray(mediaContent)
+    ? mediaContent[0]
+    : mediaContent;
+
+  if (typeof media?.["@_url"] === "string") {
+    return media["@_url"];
   }
 
-  const mediaThumbnail = item["media:thumbnail"];
-  if (mediaThumbnail) {
-    const thumbnail = Array.isArray(mediaThumbnail) ? mediaThumbnail[0] : mediaThumbnail;
-    if (thumbnail?.["@_url"]) {
-      return thumbnail["@_url"];
-    }
+  const thumbnailContent = item["media:thumbnail"];
+  const thumbnail = Array.isArray(thumbnailContent)
+    ? thumbnailContent[0]
+    : thumbnailContent;
+
+  if (typeof thumbnail?.["@_url"] === "string") {
+    return thumbnail["@_url"];
   }
 
-  const contenidoHTML =
-    (typeof item["content:encoded"] === "string"
-      ? item["content:encoded"]
-      : item["content:encoded"]?.__cdata) ||
-    (typeof item.description === "string" ? item.description : item.description?.__cdata) ||
+  const contenido =
+    item["content:encoded"]?.__cdata ??
+    item["content:encoded"] ??
+    item.description?.__cdata ??
+    item.description ??
     "";
 
-  if (contenidoHTML) {
-    const match = contenidoHTML.match(/<img[^>]+(?:src|data-src)=["']([^"']+)["']/i);
-    if (match?.[1]) {
-      return match[1];
-    }
+  if (typeof contenido === "string") {
+    const match = contenido.match(
+      /<img\b[^>]*?\b(?:src|data-src)=["']([^"']+)["']/i
+    );
+
+    if (match?.[1]) return match[1];
   }
 
   return null;
 }
 
-// Obtener categorías
-function extraerCategoria(item: any): string {
-  if (!item.category) {
-    return "Música";
-  }
+function extraerCategoria(item: RSSItem): string {
+  if (!item.category) return "Música";
 
-  const categorias = Array.isArray(item.category) ? item.category : [item.category];
+  const categorias = Array.isArray(item.category)
+    ? item.category
+    : [item.category];
+
   const categoria = categorias
-    .map((cat: any) => limpiarTexto(cat))
+    .map((cat: unknown) => limpiarTexto(cat))
     .find((cat: string) => cat.length > 0);
 
   return categoria || "Música";
 }
 
-// Obtener las últimas 6 noticias con protección ante fallos de compilación
 export async function obtenerNoticias(): Promise<Noticia[]> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // Timeout de 8 segundos para evitar bloqueos
+  const controller = new AbortController();
 
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, 8000);
+
+  try {
     const response = await fetch(RSS_URL, {
       cache: "no-store",
       signal: controller.signal,
@@ -111,10 +117,10 @@ export async function obtenerNoticias(): Promise<Noticia[]> {
       },
     });
 
-    clearTimeout(timeoutId);
-
     if (!response.ok) {
-      console.error(`Error HTTP al consultar Billboard Argentina: ${response.status}`);
+      console.error(
+        `Error HTTP al consultar Billboard Argentina: ${response.status}`
+      );
       return [];
     }
 
@@ -132,29 +138,34 @@ export async function obtenerNoticias(): Promise<Noticia[]> {
     const items = resultado?.rss?.channel?.item;
 
     if (!items) {
-      console.error("El RSS de Billboard Argentina no devolvió noticias.");
+      console.error(
+        "El RSS de Billboard Argentina no devolvió noticias."
+      );
       return [];
     }
 
     const lista = Array.isArray(items) ? items : [items];
 
-    return lista.slice(0, 6).map((item: any): Noticia => {
-      const enlace =
-        typeof item.link === "string"
-          ? item.link
-          : item.link?.["@_href"] || "#";
-
-      return {
+    return lista.slice(0, 6).map(
+      (item: RSSItem): Noticia => ({
         titulo: limpiarTexto(item.title),
         descripcion: limpiarTexto(item.description),
-        url: enlace,
+        url:
+          typeof item.link === "string"
+            ? item.link
+            : item.link?.["@_href"] || "#",
         fecha: limpiarTexto(item.pubDate),
         categoria: extraerCategoria(item),
         imagen: extraerImagen(item),
-      };
-    });
+      })
+    );
   } catch (error) {
-    console.error("Error al obtener noticias de Billboard Argentina:", error);
-    return []; // Retorna un array vacío de forma segura para que la app no colapse en build time
+    console.error(
+      "Error al obtener noticias de Billboard Argentina:",
+      error
+    );
+    return [];
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

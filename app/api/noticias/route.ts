@@ -1,8 +1,10 @@
 
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { obtenerNoticias } from "@/src/lib/noticiasMusicales";
 
 export async function GET() {
+  await connection();
+
   try {
     const noticias = await obtenerNoticias();
 
@@ -14,9 +16,7 @@ export async function GET() {
     });
   } catch (error: unknown) {
     const mensaje =
-      error instanceof Error
-        ? error.message
-        : String(error);
+      error instanceof Error ? error.message : String(error);
 
     console.error("Error obteniendo noticias:", mensaje);
 
