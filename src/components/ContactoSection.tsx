@@ -1,49 +1,49 @@
+// src/components/ContactoSection.tsx
+"use client";
 
-import { Suspense } from "react";
-import { connection } from "next/server";
 import { MapPin, Phone, Mail, MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { fetchAPI } from "@/src/lib/strapi";
 
-async function getGlobalData() {
-  try {
-    const res = await fetchAPI("/configuracion-global");
-    return res?.data || {};
-  } catch (error) {
-    console.error("Error obteniendo configuración global:", error);
-    return {};
-  }
-}
+export default function ContactoSection() {
+  const [whatsappNumber, setWhatsappNumber] = useState("5493547577080");
 
-async function ContactoContenido() {
-  // Evita que esta sección dependa de datos disponibles
-  // únicamente durante la generación estática.
-  await connection();
-
-  const global = await getGlobalData();
+  useEffect(() => {
+    async function getGlobalData() {
+      try {
+        const res = await fetchAPI("/configuracion-global");
+        if (res?.data?.whatsapp) {
+          setWhatsappNumber(res.data.whatsapp);
+        }
+      } catch (error) {
+        console.error("Error obteniendo configuración global:", error);
+      }
+    }
+    getGlobalData();
+  }, []);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 space-y-12">
+    <section id="contacto" className="scroll-mt-24 max-w-5xl mx-auto py-8 space-y-12">
       {/* Encabezado */}
       <div className="text-center space-y-3 max-w-xl mx-auto">
-        <h1 className="text-4xl font-black text-white">
+        <h2 className="text-3xl md:text-4xl font-black text-white">
           Contactate con{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E1005B] to-[#FF4B2B]">
             Play 93.9
           </span>
-        </h1>
+        </h2>
 
-        <p className="text-gray-400">
-          ¿Querés pautar en la radio, enviar tus saludos o consultar por
-          programación? Escribinos directamente.
+        <p className="text-gray-400 text-sm md:text-base">
+          ¿Querés pautar en la radio, enviar tus saludos o consultar por programación? Escribinos directamente.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
         {/* Información directa y comercial */}
         <div className="bg-[#16161E] rounded-2xl border border-white/5 p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white border-b border-white/10 pb-4">
+          <h3 className="text-xl font-bold text-white border-b border-white/10 pb-4">
             Área Comercial y Estudios
-          </h2>
+          </h3>
 
           <div className="space-y-5">
             {/* Ubicación */}
@@ -96,26 +96,24 @@ async function ContactoContenido() {
           </div>
 
           {/* Botón de WhatsApp */}
-          {global?.whatsapp && (
-            <a
-              href={`https://wa.me/${String(global.whatsapp).replace(/\D/g, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#E1005B] to-[#FF4B2B] text-white font-bold text-center flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-[#E1005B]/20"
-            >
-              <MessageCircle className="w-5 h-5" />
-              Enviar mensaje a WhatsApp
-            </a>
-          )}
+          <a
+            href={`https://wa.me/${String(whatsappNumber).replace(/\D/g, "")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#E1005B] to-[#FF4B2B] text-white font-bold text-center flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-[#E1005B]/20"
+          >
+            <MessageCircle className="w-5 h-5" />
+            Enviar mensaje a WhatsApp
+          </a>
         </div>
 
         {/* Formulario de mensaje */}
         <div className="bg-[#16161E] rounded-2xl border border-white/5 p-8 space-y-6">
-          <h2 className="text-xl font-bold text-white border-b border-white/10 pb-4">
+          <h3 className="text-xl font-bold text-white border-b border-white/10 pb-4">
             Envianos tu consulta
-          </h2>
+          </h3>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
             <div>
               <label
                 htmlFor="nombre"
@@ -169,27 +167,13 @@ async function ContactoContenido() {
 
             <button
               type="button"
-              className="w-full py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors text-sm"
+              className="w-full py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold transition-colors text-sm cursor-pointer"
             >
               Enviar Mensaje
             </button>
           </form>
         </div>
       </div>
-    </div>
-  );
-}
-
-export default function Contacto() {
-  return (
-    <Suspense
-      fallback={
-        <div className="max-w-5xl mx-auto px-4 py-12 text-gray-400">
-          Cargando información de contacto...
-        </div>
-      }
-    >
-      <ContactoContenido />
-    </Suspense>
+    </section>
   );
 }

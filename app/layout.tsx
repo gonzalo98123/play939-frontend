@@ -1,9 +1,7 @@
-
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/src/components/NavBar";
-import Stream from "@/src/components/Stream";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,19 +10,23 @@ export const metadata: Metadata = {
   description: "La radio de la música. Escuchanos en vivo.",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#0B0B0E",
+  colorScheme: "dark",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es" className="dark" style={{ colorScheme: "dark" }}>
       <body
-        className={`${inter.className} bg-[#0B0B0E] text-white antialiased pb-24`}
+        className={`${inter.className} bg-[#0B0B0E] text-white antialiased`}
       >
         <NavBar />
         <main className="min-h-screen">{children}</main>
-        <Stream />
       </body>
     </html>
   );

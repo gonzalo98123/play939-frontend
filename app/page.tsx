@@ -5,8 +5,10 @@ import Sponsors from "@/src/components/Sponsors";
 import NewsSection from "@/src/components/NewsSection";
 import ProgramacionGrid from "@/src/components/Programacion";
 import HeroSection from "@/src/components/HeroSection";
-import { Suspense } from "react";
+import SobreNosotrosSection from "@/src/components/SobreNosotrosSection";
+import ContactoSection from "@/src/components/ContactoSection";
 import Stream from "@/src/components/Stream";
+import { Suspense } from "react";
 
 interface GlobalConfig {
   whatsapp?: string;
@@ -46,29 +48,37 @@ export default async function Home() {
   const { programas, publicidades, global } = await getData();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-24">
 
-      {/* 1. GRILLA DE PROGRAMACIÓN (COMPONENTE) 
-      <Stream />*/}
+      {/* 1. INICIO / REPRODUCTOR Y HERO */}
+      <section id="inicio" className="space-y-12 pt-4">
+        <Stream whatsappNumber={global?.whatsapp} />
+        <HeroSection whatsapp={global?.whatsapp} />
+      </section>
 
-      {/* 2. GRILLA DE PROGRAMACIÓN (COMPONENTE) */}
-      <ProgramacionGrid programas={programas} />
+      {/* 2. PROGRAMACIÓN */}
+      <section id="programacion">
+        <ProgramacionGrid programas={programas} />
+      </section>
 
-      {/* 3. HERO SECTION (COMPONENTE) */}
-      <HeroSection whatsapp={global?.whatsapp} />
+      {/* 3. SOBRE NOSOTROS */}
+      <SobreNosotrosSection />
 
+      {/* 4. NOTICIAS */}
+      <section id="noticias">
+        <Suspense fallback={<div className="text-gray-500 py-12 text-center animate-pulse">Cargando noticias de actualidad...</div>}>
+          <NewsSection />
+        </Suspense>
+      </section>
 
-
-      {/* 4. SECCIÓN DE NOTICIAS AISLADA CON SUSPENSE */}
-      <Suspense fallback={<div className="text-gray-500 py-12 text-center animate-pulse">Cargando noticias de actualidad...</div>}>
-        <NewsSection />
-      </Suspense>
-
-      {/* 5. BLOQUE DE PUBLICIDADES / SPONSORS */}
+      {/* 5. SPONSORS */}
       <Sponsors publicidades={publicidades} />
 
-      {/* 6. BANNER DE LA APP */}
-      <DownloadAppBanner/>
+      {/* 6. CONTACTO */}
+      <ContactoSection />
+
+      {/* 7. BANNER DE LA APP */}
+      <DownloadAppBanner />
 
     </div>
   );
