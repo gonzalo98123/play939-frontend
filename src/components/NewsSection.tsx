@@ -18,7 +18,6 @@ interface Noticia {
 function decodeEntities(text: string | undefined | null): string {
   if (!text) return "";
   
-  // Si estás en el cliente/servidor con entorno DOM, puedes usar un textarea oculto o un parser:
   return text
     .replace(/&#038;/g, "&")
     .replace(/&amp;/g, "&")
@@ -52,8 +51,13 @@ async function getNoticias(): Promise<Noticia[]> {
 
     const noticiasOriginales: Noticia[] = data.noticias || [];
 
-    // Ordenar de la más reciente a la más antigua
-    const noticiasOrdenadas = [...noticiasOriginales].sort(
+    // 1. Filtrar únicamente las noticias que posean una imagen válida
+    const noticiasConImagen = noticiasOriginales.filter(
+      (noticia) => noticia.imagen && noticia.imagen.trim() !== ""
+    );
+
+    // 2. Ordenar de la más reciente a la más antigua
+    const noticiasOrdenadas = [...noticiasConImagen].sort(
       (a, b) => {
         const fechaA = a.fecha
           ? new Date(a.fecha).getTime()
@@ -67,7 +71,7 @@ async function getNoticias(): Promise<Noticia[]> {
       }
     );
 
-    // Mostrar solamente las últimas 6 noticias
+    // 3. Mostrar solamente las últimas 6 noticias con imagen
     return noticiasOrdenadas.slice(0, 6);
 
   } catch (error) {
@@ -133,7 +137,6 @@ export default async function NewsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {noticias.map((noticia, index) => {
-            // Limpiamos y decodificamos el título o descripción de respaldo
             const tituloCrudo =
               noticia.titulo?.trim() ||
               noticia.descripcion?.slice(0, 100) ||
@@ -153,14 +156,12 @@ export default async function NewsSection() {
                 {/* IMAGEN */}
                 <div className="h-48 bg-gradient-to-br from-[#E1005B]/20 to-[#16161E] overflow-hidden relative">
 
-                  {noticia.imagen && (
-                    <img
-                      src={noticia.imagen}
-                      alt={titulo}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  )}
+                  <img
+                    src={noticia.imagen!}
+                    alt={titulo}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
 
                   <div className="absolute top-3 left-3">
                     <span className="text-xs font-bold uppercase tracking-wider bg-[#E1005B] text-white px-3 py-1 rounded-full shadow-lg">
