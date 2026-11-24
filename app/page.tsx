@@ -5,12 +5,13 @@ import Sponsors from "@/src/components/Sponsors";
 import NewsSection from "@/src/components/NewsSection";
 import ProgramacionGrid from "@/src/components/Programacion";
 import HeroSection from "@/src/components/HeroSection";
+import HitDeLaSemana, { HitSemanaData } from "@/src/components/HitDeLaSemana";
 import SobreNosotrosSection from "@/src/components/SobreNosotrosSection";
 import ContactoSection from "@/src/components/ContactoSection";
 import Stream from "@/src/components/Stream";
 import { Suspense } from "react";
 
-interface GlobalConfig {
+interface GlobalConfig extends HitSemanaData {
   whatsapp?: string;
   [key: string]: any;
 }
@@ -35,7 +36,7 @@ async function getData() {
   }
 
   try {
-    const res = await fetchAPI('/configuracion-global');
+    const res = await fetchAPI('/configuracion-global?populate=*');
     global = res?.data || {};
   } catch (error) {
     console.error("Error al obtener configuración global:", error);
@@ -46,6 +47,7 @@ async function getData() {
 
 export default async function Home() {
   const { programas, publicidades, global } = await getData();
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:1337";
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-24">
@@ -61,23 +63,26 @@ export default async function Home() {
         <ProgramacionGrid programas={programas} />
       </section>
 
-      {/* 3. SOBRE NOSOTROS */}
+      {/* 3. EL HIT DE LA SEMANA */}
+      <HitDeLaSemana data={global} backendUrl={backendUrl} />
+
+      {/* 4. SOBRE NOSOTROS */}
       <SobreNosotrosSection />
 
-      {/* 4. NOTICIAS */}
+      {/* 5. NOTICIAS */}
       <section id="noticias">
         <Suspense fallback={<div className="text-gray-500 py-12 text-center animate-pulse">Cargando noticias de actualidad...</div>}>
           <NewsSection />
         </Suspense>
       </section>
 
-      {/* 5. SPONSORS */}
+      {/* 6. SPONSORS */}
       <Sponsors publicidades={publicidades} />
 
-      {/* 6. CONTACTO */}
+      {/* 7. CONTACTO */}
       <ContactoSection />
 
-      {/* 7. BANNER DE LA APP */}
+      {/* 8. BANNER DE LA APP */}
       <DownloadAppBanner />
 
     </div>
