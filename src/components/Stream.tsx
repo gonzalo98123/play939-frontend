@@ -76,7 +76,7 @@ export default function RadioPlayerFijo({
           className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#ff2a55] hover:bg-[#ff2a55]/90 text-white font-medium text-sm transition-all shadow-md shadow-[#ff2a55]/25 active:scale-95"
         >
           <MessageCircle className="w-4 h-4" />
-          <span>Escribinos al WhatsApp</span>
+          <span>WhatsApp</span>
         </a>
       </div>
     </div>
