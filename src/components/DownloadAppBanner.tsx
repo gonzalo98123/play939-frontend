@@ -20,7 +20,7 @@ export default function DownloadAppBanner({ appUrl = "https://play939.appradio.a
         <div className="flex flex-col md:flex-row items-center gap-5">
           <div className="flex items-center justify-center w-32 h-32 shrink-0">
             <Image 
-              src="/logo3.png" 
+              src="/logo-ultimo.png"
               alt="Play 93.9 Logo" 
               width={64} 
               height={64} 
