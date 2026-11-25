@@ -1,6 +1,6 @@
 // src/components/DownloadAppBanner.tsx
 import { Sparkles, ExternalLink } from 'lucide-react';
-import Image from 'next/image';
+
 
 interface DownloadAppBannerProps {
   appUrl?: string;
@@ -19,13 +19,14 @@ export default function DownloadAppBanner({ appUrl = "https://play939.appradio.a
         {/* Texto e Logo */}
         <div className="flex flex-col md:flex-row items-center gap-5">
           <div className="flex items-center justify-center w-32 h-32 shrink-0">
-            <Image 
-              src="/logo-ultimo.png"
-              alt="Play 93.9 Logo" 
-              width={64} 
-              height={64} 
-              className="w-full h-full object-contain"
-            />
+            {/* Logo */}
+        
+          <img
+            src="/logo-ultimo.png"
+            alt="Play 93.9 FM"
+            className="h-45 w-auto object-contain"
+          />
+        
           </div>
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FF4B2B]/10 text-[#FF4B2B] font-bold text-xs rounded-full uppercase tracking-wider mb-1">
