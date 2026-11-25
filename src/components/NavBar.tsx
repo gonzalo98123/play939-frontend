@@ -55,9 +55,9 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="#streaming" className="flex items-center shrink-0">
           <img
-            src="/logo-play939.png"
+            src="/logo-ultimo.png"
             alt="Play 93.9 FM"
-            className="h-10 w-auto object-contain"
+            className="h-20 w-auto object-contain"
           />
         </Link>
 
