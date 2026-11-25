@@ -22,21 +22,21 @@ async function getData() {
   let global: GlobalConfig = {};
 
   try {
-    const res = await fetchAPI('/programas?populate=*');
+    const res = await fetchAPI("/programas?populate=*");
     programas = res?.data || [];
   } catch (error) {
     console.error("Error al obtener programas:", error);
   }
 
   try {
-    const res = await fetchAPI('/publicidads?populate=*');
+    const res = await fetchAPI("/publicidads?populate=*");
     publicidades = res?.data || [];
   } catch (error) {
     console.error("Error al obtener publicidades:", error);
   }
 
   try {
-    const res = await fetchAPI('/configuracion-global?populate=*');
+    const res = await fetchAPI("/configuracion-global?populate=*");
     global = res?.data || {};
   } catch (error) {
     console.error("Error al obtener configuración global:", error);
@@ -47,19 +47,19 @@ async function getData() {
 
 export default async function Home() {
   const { programas, publicidades, global } = await getData();
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:1337";
+  const backendUrl =
+    process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:1337";
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-24">
-
-      {/* 1. INICIO / REPRODUCTOR Y HERO */}
-      <section id="inicio" className="space-y-12 pt-4">
+      {/* 1. STREAMING / REPRODUCTOR Y HERO */}
+      <section id="streaming" className="scroll-mt-24 space-y-12 pt-4">
         <Stream whatsappNumber={global?.whatsapp} />
         <HeroSection whatsapp={global?.whatsapp} />
       </section>
 
       {/* 2. PROGRAMACIÓN */}
-      <section id="programacion">
+      <section id="programacion" className="scroll-mt-24">
         <ProgramacionGrid programas={programas} />
       </section>
 
@@ -70,8 +70,14 @@ export default async function Home() {
       <SobreNosotrosSection />
 
       {/* 5. NOTICIAS */}
-      <section id="noticias">
-        <Suspense fallback={<div className="text-gray-500 py-12 text-center animate-pulse">Cargando noticias de actualidad...</div>}>
+      <section id="noticias" className="scroll-mt-24">
+        <Suspense
+          fallback={
+            <div className="text-gray-500 py-12 text-center animate-pulse">
+              Cargando noticias de actualidad...
+            </div>
+          }
+        >
           <NewsSection />
         </Suspense>
       </section>
@@ -83,8 +89,9 @@ export default async function Home() {
       <ContactoSection />
 
       {/* 8. BANNER DE LA APP */}
-      <DownloadAppBanner />
-
+      <section id="aplicacion" className="scroll-mt-24">
+        <DownloadAppBanner />
+      </section>
     </div>
   );
 }
