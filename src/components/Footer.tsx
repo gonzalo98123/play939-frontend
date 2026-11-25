@@ -1,6 +1,8 @@
 // src/components/Footer.tsx
 "use client";
 
+import { useEffect, useState } from "react";
+
 interface FooterProps {
   facebookUrl?: string;
   instagramUrl?: string;
@@ -40,7 +42,11 @@ export default function Footer({
   youtubeUrl = "https://www.youtube.com/",
   solutionWebIgUrl = "https://www.instagram.com/",
 }: FooterProps) {
-  const currentYear = new Date().getFullYear();
+  const [currentYear, setCurrentYear] = useState<number>(2026);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   return (
     <footer className="w-full md:fixed md:bottom-0 md:left-0 md:right-0 z-40 bg-[#08080E]/85 backdrop-blur-md border-t border-white/10">
